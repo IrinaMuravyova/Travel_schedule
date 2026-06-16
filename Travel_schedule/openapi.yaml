@@ -99,6 +99,43 @@ paths:
       description: json или xml
       schema:
        type: string
+    - name: date
+      required: false
+      in: query
+      description: Дата, на которую требуется расписание (формат YYYY-MM-DD)
+      schema:
+       type: string
+       nullable: true
+    - name: transport_types
+      required: false
+      in: query
+      description: Тип транспорта (plane, train, bus и т.д.)
+      schema:
+       type: string
+    - name: event
+      required: false
+      in: query
+      description: Событие для фильтрации (arrival/отправление)
+      schema:
+       type: string
+    - name: direction
+      required: false
+      in: query
+      description: Направление (например, на Москву)
+      schema:
+       type: string
+    - name: system
+      required: false
+      in: query
+      description: Система кодирования для параметра station
+      schema:
+       type: string
+    - name: result_timezone
+      required: false
+      in: query
+      description: Часовой пояс для отображения времени
+      schema:
+       type: string
    responses:
     "200":
      description: success
@@ -113,7 +150,7 @@ paths:
    summary: Список станций маршрута
    operationId: getRouteStations
    parameters:
-    - name: apiKey
+    - name: apikey
       required: true
       in: query
       description: Ключ доступа к API
@@ -155,6 +192,7 @@ paths:
       description: YYYY-MM-DD
       schema:
        type: string
+       nullable: true
    responses:
     "200":
      description: success
@@ -329,7 +367,7 @@ paths:
     "200":
      description: success
      content:
-      application/json:
+      text/html:
        schema:
         $ref: '#/components/schemas/AllStationsResponse'
  /v3.0/copyright/:
@@ -422,6 +460,15 @@ components:
       type: number
      majority:
       type: integer
+     direction:
+      type: string
+     codes:
+      type: object
+      properties:
+       yandex_code:
+        type: string
+       esr_code:
+        type: string
      type_choices:
       $ref: '#/components/schemas/Schedule'
   Schedule:
@@ -432,12 +479,10 @@ components:
      description: Дни, когда рейс не выполняется
     arrival:
      type: string
-     format: date-time
-     description: Время прибытия в формате ISO 8601
+     description: Время прибытия в формате HH:mm
     departure:
      type: string
-     format: date-time
-     description: Время отправления в формате ISO 8601
+     description: Время отправления в формате HH:mm
     thread:
      $ref: '#/components/schemas/Thread'
     days:
@@ -454,7 +499,7 @@ components:
      type: object
      properties:
       uid:
-       type: integer
+       type: string
       interval:
        $ref: '#/components/schemas/Interval'
       carrier:
@@ -518,6 +563,41 @@ components:
        type: array
        items:
         $ref: '#/components/schemas/Schedule'
+      interval_schedule:
+       type: array
+       items:
+        $ref: '#/components/schemas/IntervalSchedule'
+      directions:
+       type: array
+       items:
+        $ref: '#/components/schemas/Directions'
+      schedule_direction:
+       $ref: '#/components/schemas/Directions'
+  IntervalSchedule:
+      type: object
+      properties:
+       except_days:
+        type: string
+       thread:
+        $ref: '#/components/schemas/Thread'
+       interval:
+        type: object
+        properties:
+         density:
+          type: string
+         begin_time:
+          type: string
+          format: date-time
+         end_time:
+          type: string
+          format: date-time
+  Directions:
+   type: object
+   properties:
+    code:
+     type: string
+    title:
+     type: string
   ThreadStationsResponse:
    type: object
    properties:
@@ -557,8 +637,10 @@ components:
      type: string
     begin_time:
      type: string
+     format: date-time
     end_time:
      type: string
+     format: date-time
   StationsResponse:
    type: object
    properties:
@@ -586,10 +668,8 @@ components:
   CarrierResponse:
    type: object
    properties:
-    carriers:
-     type: array
-     items:
-      $ref: '#/components/schemas/Carrier'
+    carrier:
+     $ref: '#/components/schemas/Carrier'
   AllStationsResponse:
    type: object
    properties:

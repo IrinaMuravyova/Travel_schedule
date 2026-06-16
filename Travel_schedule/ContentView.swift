@@ -17,7 +17,14 @@ struct ContentView: View {
         }
         .padding()
         .onAppear{
+            RoutesBetweenStationsService.testFetchRoutes()
+            StationRouteService.testFetchStationRoute()
+            RouteStationsService.testFetchRouteStations()
             NearestStationsService.testFetchStations()
+            NearestCityService.testFetchCity()
+            CarrierInfoService.testFetchCarrierInfo()
+            AllStationsService.testFetchAllStations()
+            CopyrightService.testFetchCopyright()
         }
     }
 }

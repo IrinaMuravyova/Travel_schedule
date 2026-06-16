@@ -1,0 +1,52 @@
+# Xcode
+*.xcodeproj/project.xcworkspace/xcshareddata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcshareddata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# API Keys и конфигурации
+.env
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Derived Data
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# System files
+.DS_Store
+Thumbs.db
+.directory
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Code coverage
+*.gcno
+*.gcda
+*.gcov
+
+# Logs
+*.log
+*.tmp
+*.temp
+
+# Xcode 14+
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+
+# Testing
+TestResults/
