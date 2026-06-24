@@ -1,9 +1,9 @@
 # Xcode
-*.xcodeproj/project.xcworkspace/xcshareddata/
 *.xcodeproj/xcuserdata/
-*.xcworkspace/xcshareddata/
-*.xcworkspace/xcuserdata/
 *.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/
+*.xcworkspace/xcshareddata/
 
 # API Keys и конфигурации
 .env
@@ -42,11 +42,6 @@ Thumbs.db
 *.log
 *.tmp
 *.temp
-
-# Xcode 14+
-xcuserdata/
-*.xcuserstate
-*.xcuserdatad
 
 # Testing
 TestResults/
