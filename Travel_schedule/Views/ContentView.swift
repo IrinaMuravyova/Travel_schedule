@@ -9,22 +9,29 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(){
+            ChooseDirectionsView()
+                .tabItem {
+                    Label("", image: .schedule)
+                }
+            
+            Spacer()
+            
+            SettingsView()
+                .tabItem {
+                    Label("", image: .settings)
+                }
         }
-        .padding()
+        .tint(.blackDay)
         .onAppear{
-            RoutesBetweenStationsService.testFetchRoutes()
-            StationRouteService.testFetchStationRoute()
-            RouteStationsService.testFetchRouteStations()
-            NearestStationsService.testFetchStations()
-            NearestCityService.testFetchCity()
-            CarrierInfoService.testFetchCarrierInfo()
-            AllStationsService.testFetchAllStations()
-            CopyrightService.testFetchCopyright()
+            //            RoutesBetweenStationsService.testFetchRoutes()
+            //            StationRouteService.testFetchStationRoute()
+            //            RouteStationsService.testFetchRouteStations()
+            //            NearestStationsService.testFetchStations()
+            //            NearestCityService.testFetchCity()
+            //            CarrierInfoService.testFetchCarrierInfo()
+            //            AllStationsService.testFetchAllStations()
+            //            CopyrightService.testFetchCopyright()
         }
     }
 }
