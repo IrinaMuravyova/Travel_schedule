@@ -12,20 +12,15 @@ struct InputView: View {
     var promt: String
     
     var body: some View {
-        TextField(
-            direction,
-            text: $direction,
-            prompt:
-                Text(promt)
+        HStack {
+            Text(direction.isEmpty ? promt : direction)
                 .foregroundStyle(.grayUniversal)
                 .font(.system(size: 17, weight: .regular))
                 .tracking(-0.41)
-        )
+            Spacer()
+        }
         .padding()
         .frame(width: 259, height: 48)
+        .contentShape(Rectangle())
     }
-}
-
-#Preview {
-    InputView(promt: "Введите направление")
 }

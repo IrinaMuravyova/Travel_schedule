@@ -12,69 +12,79 @@ struct ChooseDirectionsView: View {
     @State var to: String = ""
     
     var body: some View {
-        VStack(spacing: 20) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                StoriesView()
-                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-            }
-            
-            ZStack(alignment: .center) {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.blueUniversal)
-                    .frame(width: 343, height: 128)
+        NavigationStack {
+            VStack(spacing: 20) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    StoriesView()
+                        .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+                }
                 
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading) {
-                        
-                        InputView(direction: $from, promt: "Откуда")
-                        
-                        InputView(direction: $to, promt: "Куда")
-                    }
-                    .background(.white)
-                    .cornerRadius(20)
+                ZStack(alignment: .center) {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.blueUniversal)
+                        .frame(width: 343, height: 128)
                     
-                    if !from.isEmpty && !to.isEmpty {
-                        HStack {
-                            Spacer()
-                            
-                            Button(action: {}) {
-                                Image(.сhange)
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                                    .tint(.blueUniversal)
+                    HStack(spacing: 16) {
+                        VStack(alignment: .leading) {
+                            NavigationLink {
+                                CitiesListView(selectedCity: $from)
+                            } label: {
+                                InputView(
+                                    direction: $from,
+                                    promt: NSLocalizedString("From", comment: "")
+                                )
                             }
-                            .frame(width: 36, height: 36)
-                            .background(.white)
-                            .cornerRadius(20)
                             
-                            Spacer()
+                            NavigationLink {
+                                CitiesListView(selectedCity: $to)
+                            } label: {
+                                InputView(
+                                    direction: $to,
+                                    promt: NSLocalizedString("To", comment: "")
+                                )
+                            }
                         }
-                        .padding(16)
+                        .background(.white)
+                        .cornerRadius(20)
+                        
+                        Button(action: {
+                            let temp = from
+                            from = to
+                            to = temp
+                        }) {
+                            Image(.сhange)
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .tint(.blueUniversal)
+                        }
+                        .frame(width: 36, height: 36)
+                        .background(.white)
+                        .cornerRadius(20)
                     }
+                    .padding(16)
                 }
                 
-                HStack {
-                    Spacer()
-                    
-                    Button("Найти") {
-                        NavigationLink("Выбор города", destination: {})
+                if !from.isEmpty && !to.isEmpty {
+                    HStack {
+                        Spacer()
+                        
+                        Button("Find") {
+                         //TODO: add action
+                        }
+                        .frame(width: 150, height: 60)
+                        .background(.blueUniversal)
+                        .cornerRadius(16)
+                        .foregroundStyle(.white)
+                        .font(.system(size: 17, weight: .bold))
+                        
+                        Spacer()
                     }
-                    .frame(width: 150, height: 60)
-                    .background(.blueUniversal)
-                    .cornerRadius(16)
-                    .foregroundStyle(.white)
-                    .font(.system(size: 17, weight: .bold))
-                    
+                    Spacer()
+                } else {
                     Spacer()
                 }
-                
-                Spacer()
             }
         }
     }
-}
-    
-#Preview {
-    ChooseDirectionsView()
 }
