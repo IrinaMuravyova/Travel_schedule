@@ -10,39 +10,60 @@ import Combine
 
 @MainActor
 final class CitiesListViewModel: ObservableObject {
-
+    
     @Published var cities: [Components.Schemas.Settlement] = []
     @Published var isLoading = false
-
+    
+    private let railwayStationTypes: Set<String> = [
+        //        "station",        // станция
+        "train_station",  // вокзал
+        //        "platform",       // платформа
+        //        "stop",          // остановочный пункт
+        //        "checkpoint",    // блок-пост
+        //        "post",          // пост
+        //        "crossing",      // разъезд
+        //        "overtaking_point" // обгонный пункт
+    ]
+    
     func load() async {
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
             let response = try await AllStationsService.fetchAllStations()
-
-            let countries = response.countries ?? []
-
-            let regions = countries.flatMap { country in
-                country.regions ?? []
+            
+            var allSettlements: [Components.Schemas.Settlement] = []
+            
+            if let countries = response.countries {
+                for country in countries {
+                    guard country.title == "Россия" else { continue }
+                    
+                    if let regions = country.regions {
+                        for region in regions {
+                            if let settlements = region.settlements {
+                                allSettlements.append(contentsOf: settlements)
+                            }
+                        }
+                    }
+                }
             }
-
-            let settlements = regions.flatMap { region in
-                region.settlements ?? []
+            
+            let citiesWithRailwayStations = allSettlements.filter { settlement in
+                guard let title = settlement.title,
+                      !title.isEmpty else { return false }
+                
+                guard let stations = settlement.stations,
+                      !stations.isEmpty else { return false }
+                
+                return stations.contains { station in
+                    guard let stationType = station.station_type else { return false }
+                    return railwayStationTypes.contains(stationType)
+                }
             }
-
-            cities = settlements.sorted {
+            
+            cities = citiesWithRailwayStations.sorted {
                 ($0.title ?? "") < ($1.title ?? "")
             }
-//            let response = try await AllStationsService.fetchAllStations()
-//            let countries = response.countries
-////            let region = response.countries?.first?.regions
-////            let settlement = response.countries?.first?.regions?.first?.settlements
-//            let regions = countries.flatMap(\.regions)
-//            cities = response.countries
-//                .flatMap(\.regions)
-//                .flatMap(\.settlements)
-//                .sorted { $0.title < $1.title }
         } catch {
             print("Error loading stations:", error)
         }
