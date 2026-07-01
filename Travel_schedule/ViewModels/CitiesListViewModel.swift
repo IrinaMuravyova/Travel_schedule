@@ -59,7 +59,7 @@ final class CitiesListViewModel: ObservableObject {
                     guard let stationType = station.station_type else { return false }
                     return railwayStationTypes.contains(stationType)
                 }
-            }
+            }   
             
             cities = citiesWithRailwayStations.sorted {
                 ($0.title ?? "") < ($1.title ?? "")
