@@ -14,7 +14,7 @@ struct InputView: View {
     var body: some View {
         HStack {
             Text(direction.isEmpty ? promt : direction)
-                .foregroundStyle(.grayUniversal)
+                .foregroundStyle(direction.isEmpty ? .grayUniversal : .blackDay)
                 .font(.system(size: 17, weight: .regular))
                 .tracking(-0.41)
             Spacer()
