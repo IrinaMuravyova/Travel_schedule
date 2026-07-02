@@ -12,6 +12,7 @@ struct CitiesListView: View {
     @StateObject private var viewModel: CitiesListViewModel
     
     @Binding var selectedCity: String
+    @Binding var isActive: Bool
     @Environment(\.dismiss) private var dismiss
     
     private let mainTitle = NSLocalizedString("Choose city", comment: "")
@@ -27,8 +28,9 @@ struct CitiesListView: View {
         }
     }
     
-    init(selectedCity: Binding<String>) {
+    init(selectedCity: Binding<String>, isActive: Binding<Bool>) {
         self._selectedCity = selectedCity
+        self._isActive = isActive
         self._viewModel = StateObject(wrappedValue: CitiesListViewModel())
     }
     
@@ -57,10 +59,13 @@ struct CitiesListView: View {
                             LazyVStack(spacing: 0) {
                                 ForEach(searchResults, id: \.codes?.yandex_code) { city in
                                     NavigationLink {
-                                        StationsListView(settlement: city)
+                                        StationsListView(
+                                            selectedStation: $selectedCity,
+                                            isActive: $isActive,
+                                            settlement: city
+                                        )
                                     } label: {
                                         RowView(direction: city.title ?? "")
-                                            .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
                                 }

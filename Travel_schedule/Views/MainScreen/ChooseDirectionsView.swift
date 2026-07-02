@@ -10,6 +10,8 @@ import SwiftUI
 struct ChooseDirectionsView: View {
     @State var from: String = ""
     @State var to: String = ""
+    @State private var isFromActive = false
+    @State private var isToActive = false
     
     var body: some View {
         NavigationStack {
@@ -26,23 +28,26 @@ struct ChooseDirectionsView: View {
                     
                     HStack(spacing: 16) {
                         VStack(alignment: .leading) {
-                            NavigationLink {
-                                CitiesListView(selectedCity: $from)
+                            
+                            Button {
+                                isFromActive = true
                             } label: {
                                 InputView(
                                     direction: $from,
                                     promt: NSLocalizedString("From", comment: "")
                                 )
                             }
+                            .buttonStyle(.plain)
                             
-                            NavigationLink {
-                                CitiesListView(selectedCity: $to)
+                            Button {
+                                isToActive = true
                             } label: {
                                 InputView(
                                     direction: $to,
                                     promt: NSLocalizedString("To", comment: "")
                                 )
                             }
+                            .buttonStyle(.plain)
                         }
                         .background(.white)
                         .cornerRadius(20)
@@ -70,7 +75,7 @@ struct ChooseDirectionsView: View {
                         Spacer()
                         
                         Button("Find") {
-                         //TODO: add action
+                            //TODO: add action
                         }
                         .frame(width: 150, height: 60)
                         .background(.blueUniversal)
@@ -84,6 +89,18 @@ struct ChooseDirectionsView: View {
                 } else {
                     Spacer()
                 }
+            }
+            .navigationDestination(isPresented: $isFromActive) {
+                CitiesListView(
+                    selectedCity: $from,
+                    isActive: $isFromActive
+                )
+            }
+            .navigationDestination(isPresented: $isToActive) {
+                CitiesListView(
+                    selectedCity: $to,
+                    isActive: $isToActive
+                )
             }
         }
     }

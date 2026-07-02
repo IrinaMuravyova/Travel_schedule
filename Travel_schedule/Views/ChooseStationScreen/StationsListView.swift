@@ -9,11 +9,14 @@ import SwiftUI
 
 struct StationsListView: View {
     @State private var searchString = ""
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selectedStation: String
+    @Binding var isActive: Bool
+    
+    let settlement: Components.Schemas.Settlement
     
     private let title = NSLocalizedString("Choose station", comment: "")
     private let noResultsMessage = NSLocalizedString("Station not found", comment: "")
-    
-    let settlement: Components.Schemas.Settlement
     
     private var allStations: [Components.Schemas.Station] {
         settlement.stations?.filter {
@@ -51,7 +54,14 @@ struct StationsListView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(filteredStations, id: \.codes?.yandex_code) { station in
-                            RowView(direction: extractStationName(from: station.title ?? ""))
+                            Button {
+                                selectedStation = station.title ?? ""
+                                isActive = false
+                                dismiss()
+                            } label: {
+                                RowView(direction: extractStationName(from: station.title ?? ""))
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
