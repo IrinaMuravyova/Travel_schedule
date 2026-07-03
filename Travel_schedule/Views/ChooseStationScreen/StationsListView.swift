@@ -9,19 +9,24 @@ import SwiftUI
 
 struct StationsListView: View {
     @State private var searchString = ""
-    @Environment(\.dismiss) private var dismiss
-    @Binding var selectedStation: String
+    
+    @Binding var selectedStation: Components.Schemas.Station?
     @Binding var isActive: Bool
     
-    let settlement: Components.Schemas.Settlement
+    @Environment(\.dismiss) private var dismiss
+    
+    let selectedCity: Components.Schemas.Settlement
     
     private let title = NSLocalizedString("Choose station", comment: "")
     private let noResultsMessage = NSLocalizedString("Station not found", comment: "")
     
     private var allStations: [Components.Schemas.Station] {
-        settlement.stations?.filter {
+        let stations  =
+        selectedCity.stations?.filter {
             $0.station_type == "train_station"
         } ?? []
+        
+        return stations
     }
     
     private var filteredStations: [Components.Schemas.Station] {
@@ -32,6 +37,16 @@ struct StationsListView: View {
                 station.title?.localizedCaseInsensitiveContains(searchString) ?? false
             }
         }
+    }
+    
+    init(
+        selectedStation: Binding<Components.Schemas.Station?>,
+        isActive: Binding<Bool>,
+        selectedCity: Components.Schemas.Settlement
+    ) {
+        self._selectedStation = selectedStation
+        self._isActive = isActive
+        self.selectedCity = selectedCity
     }
     
     var body: some View {
@@ -55,7 +70,7 @@ struct StationsListView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(filteredStations, id: \.codes?.yandex_code) { station in
                             Button {
-                                selectedStation = station.title ?? ""
+                                selectedStation = station
                                 isActive = false
                                 dismiss()
                             } label: {
@@ -65,7 +80,7 @@ struct StationsListView: View {
                         }
                     }
                 }
-                .navigationTitle(settlement.title ?? "")
+                .navigationTitle(selectedCity.title ?? "")
                 .navigationBarTitleDisplayMode(.inline)
             }
         }

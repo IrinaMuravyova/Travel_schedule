@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InputView: View {
-    @Binding var direction: String
+    var direction: String
     var promt: String
     
     var body: some View {

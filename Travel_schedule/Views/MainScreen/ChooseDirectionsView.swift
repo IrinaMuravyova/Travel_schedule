@@ -8,10 +8,25 @@
 import SwiftUI
 
 struct ChooseDirectionsView: View {
-    @State var from: String = ""
-    @State var to: String = ""
+    @State var fromStation: Components.Schemas.Station?
+    @State var toStation: Components.Schemas.Station?
+    
+    @State var fromSettlement: Components.Schemas.Settlement?
+    @State var toSettlement: Components.Schemas.Settlement?
+    
     @State private var isFromActive = false
     @State private var isToActive = false
+    @State private var isRoutesActive = false
+    
+    @StateObject private var viewModel = RoutesViewModel()
+    
+    var fromDisplayName: String {
+        fromStation?.title ?? ""
+    }
+    
+    var toDisplayName: String {
+        toStation?.title ?? ""
+    }
     
     var body: some View {
         NavigationStack {
@@ -33,7 +48,7 @@ struct ChooseDirectionsView: View {
                                 isFromActive = true
                             } label: {
                                 InputView(
-                                    direction: $from,
+                                    direction: fromDisplayName,
                                     promt: NSLocalizedString("From", comment: "")
                                 )
                             }
@@ -43,7 +58,7 @@ struct ChooseDirectionsView: View {
                                 isToActive = true
                             } label: {
                                 InputView(
-                                    direction: $to,
+                                    direction: toDisplayName,
                                     promt: NSLocalizedString("To", comment: "")
                                 )
                             }
@@ -53,9 +68,7 @@ struct ChooseDirectionsView: View {
                         .cornerRadius(20)
                         
                         Button(action: {
-                            let temp = from
-                            from = to
-                            to = temp
+                            viewModel.swapDirections()
                         }) {
                             Image(.сhange)
                                 .renderingMode(.template)
@@ -70,12 +83,23 @@ struct ChooseDirectionsView: View {
                     .padding(16)
                 }
                 
-                if !from.isEmpty && !to.isEmpty {
+                if fromSettlement != nil && toSettlement != nil {
                     HStack {
                         Spacer()
                         
                         Button("Find") {
-                            //TODO: add action
+                            let fromCityCode = fromSettlement?.codes?.yandex_code
+                            let toCityCode = toSettlement?.codes?.yandex_code
+                            
+                            viewModel.fromStation = fromStation
+                            viewModel.toStation = toStation
+                            viewModel.from = fromStation?.title ?? ""
+                            viewModel.to = toStation?.title ?? ""
+                            viewModel.fromCode = fromCityCode ?? ""
+                            viewModel.toCode = toCityCode ?? ""
+                            
+                            viewModel.searchRoutes()
+                            isRoutesActive = true
                         }
                         .frame(width: 150, height: 60)
                         .background(.blueUniversal)
@@ -92,15 +116,20 @@ struct ChooseDirectionsView: View {
             }
             .navigationDestination(isPresented: $isFromActive) {
                 CitiesListView(
-                    selectedCity: $from,
+                    selectedCity: $fromSettlement,
+                    selectedStation: $fromStation,
                     isActive: $isFromActive
                 )
             }
             .navigationDestination(isPresented: $isToActive) {
                 CitiesListView(
-                    selectedCity: $to,
+                    selectedCity: $toSettlement,
+                    selectedStation: $toStation,
                     isActive: $isToActive
                 )
+            }
+            .navigationDestination(isPresented: $isRoutesActive) {
+                RoutesListView(viewModel: viewModel)
             }
         }
     }

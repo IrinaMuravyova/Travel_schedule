@@ -9,9 +9,11 @@ import SwiftUI
 
 struct CitiesListView: View {
     @State private var searchString = ""
+    @State var settlement: Components.Schemas.Settlement?
     @StateObject private var viewModel: CitiesListViewModel
     
-    @Binding var selectedCity: String
+    @Binding var selectedCity: Components.Schemas.Settlement?
+    @Binding var selectedStation: Components.Schemas.Station?
     @Binding var isActive: Bool
     @Environment(\.dismiss) private var dismiss
     
@@ -28,8 +30,13 @@ struct CitiesListView: View {
         }
     }
     
-    init(selectedCity: Binding<String>, isActive: Binding<Bool>) {
+    init(
+        selectedCity: Binding<Components.Schemas.Settlement?>,
+        selectedStation: Binding<Components.Schemas.Station?>,
+        isActive: Binding<Bool>
+    ) {
         self._selectedCity = selectedCity
+        self._selectedStation = selectedStation
         self._isActive = isActive
         self._viewModel = StateObject(wrappedValue: CitiesListViewModel())
     }
@@ -60,10 +67,14 @@ struct CitiesListView: View {
                                 ForEach(searchResults, id: \.codes?.yandex_code) { city in
                                     NavigationLink {
                                         StationsListView(
-                                            selectedStation: $selectedCity,
+                                            selectedStation: $selectedStation,
                                             isActive: $isActive,
-                                            settlement: city
+                                            selectedCity: city,
                                         )
+                                        .onAppear {
+                                            settlement = city
+                                            selectedCity = city
+                                        }
                                     } label: {
                                         RowView(direction: city.title ?? "")
                                     }
