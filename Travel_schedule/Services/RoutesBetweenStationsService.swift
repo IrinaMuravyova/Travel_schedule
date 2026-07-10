@@ -17,6 +17,7 @@ protocol RoutesBetweenStationsServiceProtocol {
         to: String,
         date: String?,
         limit: Int?,
+        offset: Int?,
         transfers: Bool?
     ) async throws -> RoutesBetweenStations
 }
@@ -35,6 +36,7 @@ final class RoutesBetweenStationsService: RoutesBetweenStationsServiceProtocol {
         to: String,
         date: String? = nil,
         limit: Int? = nil,
+        offset: Int? = nil,
         transfers: Bool? = nil
     ) async throws -> RoutesBetweenStations {
         
@@ -47,6 +49,7 @@ final class RoutesBetweenStationsService: RoutesBetweenStationsServiceProtocol {
                 format: "json",
                 lang: "ru_RU",
                 limit: limit,
+                offset: offset,
                 transfers: transfers
             )
         )
@@ -91,6 +94,7 @@ extension RoutesBetweenStationsService {
         to: String,
         date: String? = nil,
         limit: Int? = nil,
+        offset: Int? = nil,
         transfers: Bool? = nil
     ) async throws -> RoutesBetweenStations {
         
@@ -109,6 +113,7 @@ extension RoutesBetweenStationsService {
                 to: to,
                 date: date,
                 limit: limit,
+                offset: offset,
                 transfers: transfers
             )
             

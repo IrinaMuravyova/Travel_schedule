@@ -10,6 +10,7 @@ import SwiftUI
 struct RoutesListView: View {
     @ObservedObject var viewModel: RoutesViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         ZStack (alignment: .bottom) {
@@ -17,38 +18,91 @@ struct RoutesListView: View {
                 Text("\(viewModel.from) -> \(viewModel.to)")
                     .frame(width: 343, height: 87)
                     .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(.blackDay)
+                    .foregroundStyle(colorScheme == .dark ? .white : .blackDay)
                 
                 if viewModel.isSearching {
-                    // Индикатор загрузки
-                    ProgressView("Поиск маршрутов...")
+                    ProgressView("Searching routes...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let routes = viewModel.routes {
-                    
-                    List(routes.segments, id: \.id) { route in
-                        RoutesRowView()
+                } else {
+                    List {
+                        if viewModel.displayedSegments.isEmpty {
+                            Text("Routes don't found")
+                                .foregroundStyle(.gray)
+                                .frame(maxWidth: .infinity)
+                                .listRowSeparator(.hidden)
+                        } else {
+                            ForEach(
+                                viewModel.displayedSegments.indices,
+                                id: \.self) { index in
+                                let route = viewModel.displayedSegments[index]
+                                
+                                RoutesRowView(route: route)
+                                    .padding(.horizontal, 0)
+                            }
+                        }
+                        
+                        if viewModel.isLoadingMore {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                Spacer()
+                            }
+                        }
                     }
                     .listStyle(.plain)
-                } else {
-                    // Состояние когда нет маршрутов
-                    Text("Маршруты не найдены")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .foregroundStyle(.gray)
+                    .onAppear {
+                        viewModel.loadMore()
+                    }
                 }
             }
             
-            Button("Уточнить время") {
-                
+            NavigationLink {
+                FiltersView(
+                    selectedTimeSlots: $viewModel.selectedTimeSlots,
+                    transferFilter: $viewModel.transferFilter
+                )
+            } label: {
+                Text("Narrow time")
+                    .frame(maxWidth: .infinity, minHeight: 60)
+                    .background(.blueUniversal)
+                    .cornerRadius(16)
+                    .foregroundStyle(.white)
+                    .font(.system(size: 17, weight: .bold))
             }
-            .frame(width: 343, height: 60)
-            .background(.blue)
-            .cornerRadius(16)
-            .foregroundStyle(.white)
-            .font(.system(size: 17, weight: .bold))
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 53)
+        .toolbar(.hidden, for: .tabBar)
+        .onAppear {
+            UITabBar.appearance().isHidden = true
+        }
+        .onDisappear {
+            UITabBar.appearance().isHidden = false
+        }
+        .onChange(of: viewModel.displayedSegments.count) { oldValue, newValue in
+            if newValue < 3 && viewModel.hasMorePages {
+                viewModel.loadMore()
+            }
         }
     }
-}
-
-#Preview {
-//    RoutesListView()
+    
+    private func isTimeInRange(time: String, timeSlot: TimeSlot) -> Bool {
+        let formatter = ISO8601DateFormatter()
+        
+        guard let date = formatter.date(from: time) else { return false }
+        
+        let hour = Calendar.current.component(.hour, from: date)
+        
+        switch timeSlot {
+        case .morning:
+            return hour >= 6 && hour < 12
+        case .day:
+            return hour >= 12 && hour < 18
+        case .evening:
+            return hour >= 18 && hour < 24
+        case .night:
+            return hour >= 0 && hour < 6
+        }
+    }
 }

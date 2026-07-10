@@ -24,56 +24,120 @@ final class RoutesViewModel: ObservableObject {
     
     @Published var isSearching: Bool = false
     @Published var showCarriersList: Bool = false
-    @Published var routes: RoutesBetweenStations?
+    
+    @Published var selectedTimeSlots: Set<TimeSlot> = [] {
+        didSet {
+            objectWillChange.send()
+        }
+    }
+    
+    @Published var transferFilter: TransferFilter? {
+        didSet {
+            objectWillChange.send()
+        }
+    }
+    
+    private let pageSize = 10
+    private var offset = 0
+    
+    @Published var isLoadingMore = false
+    private var hasMore = true
+    
+    private var allSegments: [Components.Schemas.Segment] = []
+    
+    var displayedSegments: [Components.Schemas.Segment] {
+        allSegments.filter { segment in
+            var matchesTime = true
+            var matchesTransfer = true
+            
+            if !selectedTimeSlots.isEmpty, let departure = segment.departure {
+                matchesTime = selectedTimeSlots.contains { slot in
+                    isTimeInRange(time: departure, timeSlot: slot)
+                }
+            }
+            
+            if let transferFilter = transferFilter {
+                switch transferFilter {
+                case .withTransfers:
+                    matchesTransfer = segment.has_transfers == true
+                case .withoutTransfers:
+                    matchesTransfer = segment.has_transfers == false
+                }
+            }
+            
+            return matchesTime && matchesTransfer
+        }
+    }
+    
+    var hasFilteredResults: Bool {
+        !displayedSegments.isEmpty
+    }
+    
+    var hasMorePages: Bool {
+        hasMore
+    }
     
     func searchRoutes() {
         guard !fromCode.isEmpty, !toCode.isEmpty else { return }
         
+        offset = 0
+        hasMore = true
+        
         isSearching = true
         
-        let date = getCurrentDate()
-        
         Task {
-            do {
-                let routes = try await RoutesBetweenStationsService.fetchRoutes(
-                    from: fromCode,
-                    to: toCode,
-                    date: date,
-                    limit: 10,
-                    transfers: false
-                )
-                
-                self.routes = routes
-                self.isSearching = false
-                self.showCarriersList = true
-            } catch {
-                print(error.localizedDescription)
-                self.isSearching = false
-            }
+            await loadRoutes(reset: true)
         }
     }
     
-    func swapDirections() {
-        let temp = from
-        from = to
-        to = temp
+    func loadMore() {
+        guard !isLoadingMore, hasMore else { return }
         
-        let tempCode = fromCode
-        fromCode = toCode
-        toCode = tempCode
+        isLoadingMore = true
+        offset += pageSize
         
-        let tempStation = fromStation
-        fromStation = toStation
-        toStation = tempStation
-        
-        let tempSettlement = fromSettlement
-        fromSettlement = toSettlement
-        toSettlement = tempSettlement
+        Task {
+            await loadRoutes(reset: false)
+        }
     }
-    
+}
+
+// MARK: - Private functions
+extension RoutesViewModel {
     private func getCurrentDate() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        
         return dateFormatter.string(from: Date())
+    }
+    
+    private func loadRoutes(reset: Bool) async {
+        do {
+            let result = try await RoutesBetweenStationsService.fetchRoutes(
+                from: fromCode,
+                to: toCode,
+                date: getCurrentDate(),
+                limit: pageSize,
+                offset: offset,
+                transfers: false
+            )
+            
+            if reset {
+                allSegments = result.segments ?? []
+            } else {
+                allSegments.append(contentsOf: result.segments ?? [])
+            }
+            
+            hasMore = (result.segments?.count ?? 0) == pageSize
+            
+            isSearching = false
+            isLoadingMore = false
+            showCarriersList = true
+        } catch {
+            isSearching = false
+            isLoadingMore = false
+            
+            print(error)
+        }
     }
 }
