@@ -10,23 +10,25 @@ import Combine
 
 @MainActor
 final class CitiesListViewModel: ObservableObject {
-    
     @Published var cities: [Components.Schemas.Settlement] = []
     @Published var isLoading = false
+    @Published var networkError: NetworkError?
     
     private let railwayStationTypes: Set<String> = [
-        //        "station",        // станция
-        "train_station",  // вокзал
-        //        "platform",       // платформа
-        //        "stop",          // остановочный пункт
-        //        "checkpoint",    // блок-пост
-        //        "post",          // пост
-        //        "crossing",      // разъезд
-        //        "overtaking_point" // обгонный пункт
+        //      "station",
+        "train_station",
+        //      "platform",
+        //      "stop",
+        //      "checkpoint",
+        //      "post",
+        //      "crossing",
+        //      "overtaking_point"
     ]
     
     func load() async {
         isLoading = true
+        networkError = nil
+        
         defer { isLoading = false }
         
         do {
@@ -59,13 +61,26 @@ final class CitiesListViewModel: ObservableObject {
                     guard let stationType = station.station_type else { return false }
                     return railwayStationTypes.contains(stationType)
                 }
-            }   
+            }
             
             cities = citiesWithRailwayStations.sorted {
                 ($0.title ?? "") < ($1.title ?? "")
             }
         } catch {
             print("Error loading stations:", error)
+            
+            if let urlError = error as? URLError {
+                switch urlError.code {
+                case .notConnectedToInternet, .networkConnectionLost:
+                    networkError = .connectionError
+                default:
+                    networkError = .serverNotAllow
+                }
+            } else {
+                networkError = .serverNotAllow
+            }
+            
+            cities = []
         }
     }
 }

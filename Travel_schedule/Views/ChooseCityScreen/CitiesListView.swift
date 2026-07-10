@@ -15,6 +15,8 @@ struct CitiesListView: View {
     @Binding var selectedCity: Components.Schemas.Settlement?
     @Binding var selectedStation: Components.Schemas.Station?
     @Binding var isActive: Bool
+    @Binding var selectedTab: ContentView.Tab
+    
     @Environment(\.dismiss) private var dismiss
     
     private let mainTitle = NSLocalizedString("Choose city", comment: "")
@@ -33,11 +35,13 @@ struct CitiesListView: View {
     init(
         selectedCity: Binding<Components.Schemas.Settlement?>,
         selectedStation: Binding<Components.Schemas.Station?>,
-        isActive: Binding<Bool>
+        isActive: Binding<Bool>,
+        selectedTab: Binding<ContentView.Tab>
     ) {
         self._selectedCity = selectedCity
         self._selectedStation = selectedStation
         self._isActive = isActive
+        self._selectedTab = selectedTab
         self._viewModel = StateObject(wrappedValue: CitiesListViewModel())
     }
     
@@ -45,6 +49,12 @@ struct CitiesListView: View {
         Group {
             if viewModel.isLoading {
                 ProgressView("Loading cities")
+            } else if let error = viewModel.networkError {
+                
+                ErrorScreenView(error: error)
+                    .onAppear {
+                        selectedTab = .settings
+                    }
             } else {
                 VStack {
                     SearchBar(searchText: $searchString)

@@ -7,22 +7,34 @@
 
 import SwiftUI
 
+
+
 struct ContentView: View {
+    @State private var selectedTab = Tab.schedule
+    @Environment(\.colorScheme) private var colorScheme
+    
+    enum Tab {
+        case schedule
+        case settings
+    }
+    
     var body: some View {
-        TabView(){
-            ChooseDirectionsView()
+        TabView(selection: $selectedTab){
+            ChooseDirectionsView(selectedTab: $selectedTab)
                 .tabItem {
                     Label("", image: .schedule)
                 }
+                .tag(Tab.schedule)
             
             Spacer()
             
-            SettingsView()
+            SettingsView(selectedTab: $selectedTab)
                 .tabItem {
                     Label("", image: .settings)
                 }
+                .tag(Tab.settings)
         }
-        .tint(.blackDay)
+        .tint(colorScheme == .dark ? .white : .blackDay)
         .onAppear{
             //            RoutesBetweenStationsService.testFetchRoutes()
             //            StationRouteService.testFetchStationRoute()

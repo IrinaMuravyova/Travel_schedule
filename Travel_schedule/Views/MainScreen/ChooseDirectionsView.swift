@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ChooseDirectionsView: View {
+    @Binding var selectedTab: ContentView.Tab
+    
     @State var fromStation: Components.Schemas.Station?
     @State var toStation: Components.Schemas.Station?
     
@@ -68,7 +70,8 @@ struct ChooseDirectionsView: View {
                         .cornerRadius(20)
                         
                         Button(action: {
-                            viewModel.swapDirections()
+                            swapDirections()
+                            updateViewModelForSearch()
                         }) {
                             Image(.сhange)
                                 .renderingMode(.template)
@@ -118,19 +121,45 @@ struct ChooseDirectionsView: View {
                 CitiesListView(
                     selectedCity: $fromSettlement,
                     selectedStation: $fromStation,
-                    isActive: $isFromActive
+                    isActive: $isFromActive,
+                    selectedTab: $selectedTab
                 )
             }
             .navigationDestination(isPresented: $isToActive) {
                 CitiesListView(
                     selectedCity: $toSettlement,
                     selectedStation: $toStation,
-                    isActive: $isToActive
+                    isActive: $isToActive,
+                    selectedTab: $selectedTab
                 )
             }
             .navigationDestination(isPresented: $isRoutesActive) {
                 RoutesListView(viewModel: viewModel)
             }
         }
+    }
+    
+    private func swapDirections() {
+        let tempStation = fromStation
+        fromStation = toStation
+        toStation = tempStation
+        
+        let tempSettlement = fromSettlement
+        fromSettlement = toSettlement
+        toSettlement = tempSettlement
+    }
+    
+    private func updateViewModelForSearch() {
+        let fromCityCode = fromSettlement?.codes?.yandex_code
+        let toCityCode = toSettlement?.codes?.yandex_code
+        
+        viewModel.fromStation = fromStation
+        viewModel.toStation = toStation
+        viewModel.fromSettlement = fromSettlement
+        viewModel.toSettlement = toSettlement
+        viewModel.from = fromStation?.title ?? ""
+        viewModel.to = toStation?.title ?? ""
+        viewModel.fromCode = fromCityCode ?? ""
+        viewModel.toCode = toCityCode ?? ""
     }
 }

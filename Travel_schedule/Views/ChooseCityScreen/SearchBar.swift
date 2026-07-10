@@ -10,6 +10,8 @@ import SwiftUI
 struct SearchBar: View {
     @Binding var searchText: String
     @State var isSearching: Bool = false
+    @Environment(\.colorScheme) private var colorScheme
+    
     var placeholder = NSLocalizedString("Search placeholder", comment: "")
     
     var body: some View {
@@ -49,7 +51,7 @@ struct SearchBar: View {
                 )
             }
             .frame(height: 37)
-            .background(Color(red: 118.0/255, green: 118.0/255, blue: 128.0/255).opacity(0.12))
+            .background(colorScheme == .dark ? .searchDark : Color(red: 118.0/255, green: 118.0/255, blue: 128.0/255).opacity(0.12))
             .cornerRadius(10)
             
             if isSearching {
@@ -69,8 +71,4 @@ struct SearchBar: View {
         .frame(height: 37)
         .padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
     }
-}
-
-#Preview {
-    //    SearchBar()
 }

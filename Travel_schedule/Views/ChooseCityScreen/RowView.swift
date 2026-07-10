@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct RowView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    
     var direction: String
     
     var body: some View {
@@ -24,9 +26,9 @@ struct RowView: View {
                 .scaledToFit()
                 .frame(width: 24, height: 24, alignment: .center)
                 .padding(.trailing, 16)
-                .foregroundStyle(.blackDay)
+                .foregroundStyle(colorScheme == .dark ? .white : .blackDay)
         }
         .frame(height: 60)
-        .foregroundStyle(.blackDay)
+        .foregroundStyle(colorScheme == .dark ? .white : .blackDay)
     }
 }

@@ -119,7 +119,7 @@ extension RoutesViewModel {
                 date: getCurrentDate(),
                 limit: pageSize,
                 offset: offset,
-                transfers: false
+                transfers: true
             )
             
             if reset {
