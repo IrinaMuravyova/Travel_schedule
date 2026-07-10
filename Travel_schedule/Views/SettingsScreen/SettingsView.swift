@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var isDarkModeOn: Bool = false
+    @Binding var selectedTab: ContentView.Tab
     
     var body: some View {
         VStack {
@@ -44,6 +45,3 @@ struct SettingsView: View {
     }
 }
 
-#Preview {
-    SettingsView()
-}
