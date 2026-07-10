@@ -13,8 +13,7 @@ enum NetworkError {
 }
 
 struct ErrorScreenView: View {
-    @State private var error: NetworkError?
-    @State private var isPresented: Bool = false
+    let error: NetworkError?
     
     var body: some View {
         switch error {
