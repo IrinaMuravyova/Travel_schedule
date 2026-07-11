@@ -84,6 +84,7 @@ struct StationsListView: View {
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
+        .toolbar(.hidden, for: .tabBar)
     }
     
     private func extractStationName(from fullTitle: String) -> String {

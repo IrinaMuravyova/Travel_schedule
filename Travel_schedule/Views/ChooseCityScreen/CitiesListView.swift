@@ -101,5 +101,6 @@ struct CitiesListView: View {
         .task {
             await viewModel.load()
         }
+        .toolbar(.hidden, for: .tabBar)
     }
 }
