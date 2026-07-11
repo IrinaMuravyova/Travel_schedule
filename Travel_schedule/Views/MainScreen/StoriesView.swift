@@ -31,8 +31,7 @@ struct StoriesView: View {
                         .tracking(0.4)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
-                        .padding(.leading, 8)
-                        .padding(.trailing, 8)
+                        .padding(.horizontal, 8)
                         .padding(.bottom, 12)
                 }
             }
