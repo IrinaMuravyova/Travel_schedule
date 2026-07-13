@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State private var isDarkModeOn: Bool = false
+    @AppStorage("isDarkModeOn") private var isDarkModeOn = false
     @Binding var selectedTab: ContentView.Tab
     
     var body: some View {
