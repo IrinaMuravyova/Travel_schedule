@@ -55,6 +55,12 @@ paths:
       description: Максимальное количество результатов поиска в ответе
       schema:
        type: integer
+    - name: offset
+      required: false
+      in: query
+      description: Смещение относительно начала списка результатов
+      schema:
+       type: integer
     - name: transfers
       required: false
       in: query
