@@ -65,4 +65,26 @@ extension CarrierInfoService {
             }
         }
     }
+    
+    static func fetchCarrierInfo(carrierCode: String) async throws -> Components.Schemas.Carrier? {
+        let client = Client(
+            serverURL: try Servers.Server1.url(),
+            transport: URLSessionTransport()
+        )
+
+        let service = CarrierInfoService(
+            client: client,
+            apikey: "c91d4c7a-40d5-4c5e-826c-2df03efaaea6"
+        )
+
+        print("Fetching carrier info...")
+
+        let carrier = try await service.getCarrierInfo(
+            code: carrierCode
+        )
+
+        print("Successfully fetched carrier info:")
+
+        return carrier.carrier
+    }
 }
