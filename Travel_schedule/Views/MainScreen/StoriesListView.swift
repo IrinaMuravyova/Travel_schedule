@@ -1,5 +1,5 @@
 //
-//  StoriesView.swift
+//  StoriesListView.swift
 //  Travel_schedule
 //
 //  Created by Irina Muravyeva on 26.06.2026.
@@ -7,24 +7,32 @@
 
 import SwiftUI
 
-struct StoriesView: View {
+struct StoriesListView: View {
     private let imageBorderWidth: CGFloat = 4
-    private let samplesImage: [Image] = [Image(.stories1), Image(.stories2), Image(.stories3), Image(.stories4)]
+    private let stories: [Story] = [
+        .story1,
+        .story2,
+        .story3,
+        .story4
+    ]
+    
+    @Binding var selectedStory: Story?
+    
     var body: some View {
         LazyHGrid(rows: [GridItem(.fixed(140))]) {
-            ForEach(0..<samplesImage.count, id: \.self) { index in
+            ForEach(stories) { story in
                 ZStack (alignment: .bottomLeading) {
                     ZStack(alignment: .center) {
                         RoundedRectangle(cornerRadius: 16) .fill(.blueUniversal).frame(width: 92, height: 140)
                         
-                        samplesImage[index]
+                        story.image
                             .resizable()
                             .scaledToFit()
                             .frame(width: 92 - imageBorderWidth * 2, height: 140 - imageBorderWidth * 2)
                             .cornerRadius(16)
                     }
                     
-                    Text("Text Text Text Text Text Text Text Text Text")
+                    Text(story.description)
                         .frame(width: 76, height: 45, alignment: .leading)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(.white)
@@ -34,12 +42,18 @@ struct StoriesView: View {
                         .padding(.horizontal, 8)
                         .padding(.bottom, 12)
                 }
+                .onTapGesture {
+                    selectedStory = story
+                }
+                .fullScreenCover(item: $selectedStory) { story in
+                    if let index = stories.firstIndex(where: { $0.id == story.id }) {
+                        StoryContentView(stories: stories, startIndex: index)
+                    } else {
+                        StoryContentView(stories: stories)
+                    }
+                }
             }
         }
         .frame(height: 188)
     }
-}
-
-#Preview {
-    StoriesView()
 }

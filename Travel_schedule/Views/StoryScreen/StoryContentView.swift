@@ -12,7 +12,7 @@ struct StoryContentView: View {
     struct Configuration {
         let timerTickInternal: TimeInterval
         let progressPerTick: CGFloat
-
+        
         init(
             storiesCount: Int,
             secondsPerStory: TimeInterval = 5,
@@ -25,22 +25,24 @@ struct StoryContentView: View {
     
     private let stories: [Story]
     private let configuration: Configuration
+    private let startIndex: Int
+    
     private var currentStory: Story { stories[currentStoryIndex] }
     private var currentStoryIndex: Int { Int(progress * CGFloat(stories.count)) }
     
-//    private var progress: CGFloat {
-//        CGFloat(currentStoryIndex) / CGFloat(stories.count)
-//    }
-    
-//    @State private var currentStoryIndex = 0
     @State private var progress: CGFloat = 0
     @State private var timer: Timer.TimerPublisher = Timer.publish(every: 5, on: .main, in: .common)
     @State private var cancellable: Cancellable?
     
-    init(stories: [Story] = [ .story1, .story2, .story3 ]) {
+    @Environment(\.dismiss) private var dismiss
+    
+    init(stories: [Story] = [ .story1, .story2, .story3 ], startIndex: Int = 0) {
         self.stories = stories
+        self.startIndex = min(startIndex, stories.count - 1)
         configuration = Configuration(storiesCount: stories.count)
         timer = Self.createTimer(configuration: configuration)
+        
+        _progress = State(initialValue: CGFloat(self.startIndex) / CGFloat(stories.count))
     }
     
     var body: some View {
@@ -49,9 +51,10 @@ struct StoryContentView: View {
             
             ProgressBar(numberOfSections: stories.count, progress: progress)
                 .padding(.init(top: 28, leading: 12, bottom: 12, trailing: 12))
-
-            CloseButton(action: { print("Close Story") })
-                .padding(.top, 57)
+            
+            CloseButton(action: { dismiss() })
+                .ignoresSafeArea()
+                .padding(.top, 50)
                 .padding(.trailing, 12)
         }
         .onAppear {
@@ -107,30 +110,30 @@ struct StoryContentView: View {
     private func handleSwipe(_ value: DragGesture.Value) {
         let horizontal = value.translation.width
         let vertical = value.translation.height
-
+        
         guard abs(horizontal) > abs(vertical) else { return }
-
+        
         if horizontal < -50 {
             nextStory()
         } else if horizontal > 50 {
             previousStory()
         }
-
+        
         resetTimer()
     }
     
     private func previousStory() {
         let storiesCount = stories.count
         let currentIndex = Int(progress * CGFloat(storiesCount))
-
+        
         let previousIndex: Int
-
+        
         if currentIndex == 0 {
             previousIndex = storiesCount - 1
         } else {
             previousIndex = currentIndex - 1
         }
-
+        
         withAnimation {
             progress = CGFloat(previousIndex) / CGFloat(storiesCount)
         }

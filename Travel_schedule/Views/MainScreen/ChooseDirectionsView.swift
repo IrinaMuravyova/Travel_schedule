@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ChooseDirectionsView: View {
     @Binding var selectedTab: ContentView.Tab
+    @State private var selectedStory: Story?
     
     @State var fromStation: Components.Schemas.Station?
     @State var toStation: Components.Schemas.Station?
@@ -34,7 +35,7 @@ struct ChooseDirectionsView: View {
         NavigationStack {
             VStack(spacing: 20) {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    StoriesView()
+                    StoriesListView(selectedStory: $selectedStory)
                         .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
                 }
                 
@@ -135,6 +136,9 @@ struct ChooseDirectionsView: View {
             }
             .navigationDestination(isPresented: $isRoutesActive) {
                 RoutesListView(viewModel: viewModel)
+            }
+            .fullScreenCover(item: $selectedStory) { story in
+                StoryContentView(stories: [story])
             }
         }
     }
