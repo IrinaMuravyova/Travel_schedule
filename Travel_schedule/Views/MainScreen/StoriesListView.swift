@@ -18,18 +18,25 @@ struct StoriesListView: View {
     
     @Binding var selectedStory: Story?
     
+    @ObservedObject var storyViewState: StoryViewState
+    
     var body: some View {
         LazyHGrid(rows: [GridItem(.fixed(140))]) {
             ForEach(stories) { story in
                 ZStack (alignment: .bottomLeading) {
                     ZStack(alignment: .center) {
-                        RoundedRectangle(cornerRadius: 16) .fill(.blueUniversal).frame(width: 92, height: 140)
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(storyViewState.isViewed(story) ? .clear : .blueUniversal)
+                            .frame(width: 92, height: 140)
                         
                         story.image
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 92 - imageBorderWidth * 2, height: 140 - imageBorderWidth * 2)
+                            .frame(
+                                width: storyViewState.isViewed(story) ? 92 : 92 - imageBorderWidth * 2,
+                                height: storyViewState.isViewed(story) ? 140 : 140 - imageBorderWidth * 2)
                             .cornerRadius(16)
+                            .opacity(storyViewState.isViewed(story) ? 0.5 : 1)
                     }
                     
                     Text(story.description)
@@ -44,12 +51,20 @@ struct StoriesListView: View {
                 }
                 .onTapGesture {
                     selectedStory = story
+                    storyViewState.markAsViewed(story)
                 }
                 .fullScreenCover(item: $selectedStory) { story in
                     if let index = stories.firstIndex(where: { $0.id == story.id }) {
-                        StoryContentView(stories: stories, startIndex: index)
+                        StoryContentView(
+                            stories: stories,
+                            startIndex: index,
+                            storyViewState: storyViewState
+                        )
                     } else {
-                        StoryContentView(stories: stories)
+                        StoryContentView(
+                            stories: stories,
+                            storyViewState: storyViewState
+                        )
                     }
                 }
             }
@@ -57,3 +72,4 @@ struct StoriesListView: View {
         .frame(height: 188)
     }
 }
+

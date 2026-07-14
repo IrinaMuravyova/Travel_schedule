@@ -35,10 +35,16 @@ struct StoryContentView: View {
     @State private var cancellable: Cancellable?
     
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject var storyViewState: StoryViewState
     
-    init(stories: [Story] = [ .story1, .story2, .story3 ], startIndex: Int = 0) {
+    init(
+        stories: [Story] = [ .story1, .story2, .story3 ],
+        startIndex: Int = 0,
+        storyViewState: StoryViewState
+    ) {
         self.stories = stories
         self.startIndex = min(startIndex, stories.count - 1)
+        self.storyViewState = storyViewState
         configuration = Configuration(storiesCount: stories.count)
         timer = Self.createTimer(configuration: configuration)
         
@@ -77,6 +83,10 @@ struct StoryContentView: View {
                     handleSwipe(value)
                 }
         )
+        .onChange(of: currentStoryIndex) { _, newIndex in
+            guard stories.indices.contains(newIndex) else { return }
+            storyViewState.markAsViewed(stories[newIndex])
+        }
     }
     
     private func timerTick() {
@@ -138,8 +148,4 @@ struct StoryContentView: View {
             progress = CGFloat(previousIndex) / CGFloat(storiesCount)
         }
     }
-}
-
-#Preview {
-    StoryContentView()
 }

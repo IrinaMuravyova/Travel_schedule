@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum StoryID {
+enum StoryID: String, Codable {
     case story1
     case story2
     case story3
