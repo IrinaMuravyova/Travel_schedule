@@ -84,8 +84,6 @@ struct RoutesRowView: View {
                 .padding(EdgeInsets(top: 2, leading: 14, bottom: 14, trailing: 14))
             }
         }
-        .listRowSeparator(.hidden)
-        
     }
     
     // MARK: - Helper Functions

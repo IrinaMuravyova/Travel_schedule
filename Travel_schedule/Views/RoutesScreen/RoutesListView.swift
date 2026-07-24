@@ -9,8 +9,11 @@ import SwiftUI
 
 struct RoutesListView: View {
     @ObservedObject var viewModel: RoutesViewModel
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    
+    @State private var selectedRoute: Components.Schemas.Segment?
     
     var body: some View {
         ZStack (alignment: .bottom) {
@@ -33,12 +36,18 @@ struct RoutesListView: View {
                         } else {
                             ForEach(
                                 viewModel.displayedSegments.indices,
-                                id: \.self) { index in
+                                id: \.self
+                            ) { index in
                                 let route = viewModel.displayedSegments[index]
                                 
-                                RoutesRowView(route: route)
-                                    .padding(.horizontal, 0)
+                                Button {
+                                    selectedRoute = route
+                                } label: {
+                                    RoutesRowView(route: route)
+                                }
+                                .buttonStyle(.plain)
                             }
+                            .listRowSeparator(.hidden)
                         }
                         
                         if viewModel.isLoadingMore {
@@ -70,8 +79,8 @@ struct RoutesListView: View {
                     .font(.system(size: 17, weight: .bold))
             }
             .buttonStyle(.plain)
+            .padding(.horizontal, 16)
         }
-        .padding(.horizontal, 16)
         .padding(.bottom, 53)
         .toolbar(.hidden, for: .tabBar)
         .onAppear {
@@ -84,6 +93,11 @@ struct RoutesListView: View {
             if newValue < 3 && viewModel.hasMorePages {
                 viewModel.loadMore()
             }
+        }
+        .navigationDestination(item: $selectedRoute) { route in
+            CarrierView(
+                carrierCode: String(route.thread?.carrier?.code ?? 0)
+            )
         }
     }
 }

@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-
-
 struct ContentView: View {
+    @AppStorage("isDarkModeOn") private var isDarkModeOn = false
     @State private var selectedTab = Tab.schedule
     @Environment(\.colorScheme) private var colorScheme
     
@@ -34,7 +33,7 @@ struct ContentView: View {
                 }
                 .tag(Tab.settings)
         }
-        .tint(colorScheme == .dark ? .white : .blackDay)
+        .tint(isDarkModeOn ? .white : .blackDay)
         .onAppear{
             //            RoutesBetweenStationsService.testFetchRoutes()
             //            StationRouteService.testFetchStationRoute()
@@ -45,6 +44,7 @@ struct ContentView: View {
             //            AllStationsService.testFetchAllStations()
             //            CopyrightService.testFetchCopyright()
         }
+        .preferredColorScheme(isDarkModeOn ? .dark : .light)
     }
 }
 
