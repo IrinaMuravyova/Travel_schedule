@@ -12,25 +12,11 @@ struct ChooseDirectionsView: View {
     @State private var selectedStory: Story?
     @StateObject private var storyViewState = StoryViewState()
     
-    @State var fromStation: Components.Schemas.Station?
-    @State var toStation: Components.Schemas.Station?
-    
-    @State var fromSettlement: Components.Schemas.Settlement?
-    @State var toSettlement: Components.Schemas.Settlement?
-    
+    @State private var viewModel = ChooseDirectionsViewModel()
+
     @State private var isFromActive = false
     @State private var isToActive = false
     @State private var isRoutesActive = false
-    
-    @StateObject private var viewModel = RoutesViewModel()
-    
-    var fromDisplayName: String {
-        fromStation?.title ?? ""
-    }
-    
-    var toDisplayName: String {
-        toStation?.title ?? ""
-    }
     
     var body: some View {
         NavigationStack {
@@ -55,7 +41,7 @@ struct ChooseDirectionsView: View {
                                 isFromActive = true
                             } label: {
                                 InputView(
-                                    direction: fromDisplayName,
+                                    direction: viewModel.fromDisplayName,
                                     promt: NSLocalizedString("From", comment: "")
                                 )
                             }
@@ -65,7 +51,7 @@ struct ChooseDirectionsView: View {
                                 isToActive = true
                             } label: {
                                 InputView(
-                                    direction: toDisplayName,
+                                    direction: viewModel.toDisplayName,
                                     promt: NSLocalizedString("To", comment: "")
                                 )
                             }
@@ -75,8 +61,8 @@ struct ChooseDirectionsView: View {
                         .cornerRadius(20)
                         
                         Button(action: {
-                            swapDirections()
-                            updateViewModelForSearch()
+                            viewModel.swapDirections()
+//                            updateViewModelForSearch()
                         }) {
                             Image(.сhange)
                                 .renderingMode(.template)
@@ -91,21 +77,11 @@ struct ChooseDirectionsView: View {
                     .padding(16)
                 }
                 
-                if fromSettlement != nil && toSettlement != nil {
+                if viewModel.canSearch {
                     HStack {
                         Spacer()
                         
                         Button("Find") {
-                            let fromCityCode = fromSettlement?.codes?.yandex_code
-                            let toCityCode = toSettlement?.codes?.yandex_code
-                            
-                            viewModel.fromStation = fromStation
-                            viewModel.toStation = toStation
-                            viewModel.from = fromStation?.title ?? ""
-                            viewModel.to = toStation?.title ?? ""
-                            viewModel.fromCode = fromCityCode ?? ""
-                            viewModel.toCode = toCityCode ?? ""
-                            
                             viewModel.searchRoutes()
                             isRoutesActive = true
                         }
@@ -124,50 +100,26 @@ struct ChooseDirectionsView: View {
             }
             .navigationDestination(isPresented: $isFromActive) {
                 CitiesListView(
-                    selectedCity: $fromSettlement,
-                    selectedStation: $fromStation,
+                    selectedCity: $viewModel.fromSettlement,
+                    selectedStation: $viewModel.fromStation,
                     isActive: $isFromActive,
                     selectedTab: $selectedTab
                 )
             }
             .navigationDestination(isPresented: $isToActive) {
                 CitiesListView(
-                    selectedCity: $toSettlement,
-                    selectedStation: $toStation,
+                    selectedCity: $viewModel.toSettlement,
+                    selectedStation: $viewModel.toStation,
                     isActive: $isToActive,
                     selectedTab: $selectedTab
                 )
             }
             .navigationDestination(isPresented: $isRoutesActive) {
-                RoutesListView(viewModel: viewModel)
+                RoutesListView(viewModel: viewModel.routesViewModel)
             }
             .fullScreenCover(item: $selectedStory) { story in
                 StoryContentView(stories: [story], storyViewState: storyViewState)
             }
         }
-    }
-    
-    private func swapDirections() {
-        let tempStation = fromStation
-        fromStation = toStation
-        toStation = tempStation
-        
-        let tempSettlement = fromSettlement
-        fromSettlement = toSettlement
-        toSettlement = tempSettlement
-    }
-    
-    private func updateViewModelForSearch() {
-        let fromCityCode = fromSettlement?.codes?.yandex_code
-        let toCityCode = toSettlement?.codes?.yandex_code
-        
-        viewModel.fromStation = fromStation
-        viewModel.toStation = toStation
-        viewModel.fromSettlement = fromSettlement
-        viewModel.toSettlement = toSettlement
-        viewModel.from = fromStation?.title ?? ""
-        viewModel.to = toStation?.title ?? ""
-        viewModel.fromCode = fromCityCode ?? ""
-        viewModel.toCode = toCityCode ?? ""
     }
 }
