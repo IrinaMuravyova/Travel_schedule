@@ -5,7 +5,6 @@
 //  Created by Irina Muravyeva on 14.07.2026.
 //
 
-import SwiftUI
 import Combine
 
 final class CarrierViewModel: ObservableObject {
@@ -19,12 +18,12 @@ final class CarrierViewModel: ObservableObject {
         self.carrierCode = carrierCode
     }
     
-    func load(code: String) async {
+    func load() async {
         isLoading = true
         error = nil
         do {
             let carrier = try await CarrierInfoService.fetchCarrierInfo(
-                carrierCode: code
+                carrierCode: carrierCode
             )
 
             self.carrier = carrier
