@@ -11,15 +11,12 @@ struct CarrierView: View {
     @Environment(\.colorScheme) private var colorScheme
     @StateObject private var viewModel: CarrierViewModel
     
-    private let carrierCode: String
-    
     init(carrierCode: String) {
         _viewModel = StateObject(
             wrappedValue: CarrierViewModel(
                 carrierCode: carrierCode
             )
         )
-        self.carrierCode = carrierCode
     }
     
     var body: some View {
@@ -46,31 +43,10 @@ struct CarrierView: View {
                             .foregroundStyle(colorScheme == .dark ? .white : .blackDay)
                         
                         VStack(alignment: .leading, spacing: 0) {
-                            if let email = carrier.email, !email.isEmpty {
+                            ForEach(viewModel.contacts) { contact in
                                 ContactInfoView(
-                                    title: "Email",
-                                    details: email
-                                )
-                            }
-                            
-                            if let phone = carrier.phone, !phone.isEmpty {
-                                ContactInfoView(
-                                    title: "Phone",
-                                    details: phone
-                                )
-                            }
-                            
-                            if let url = carrier.url, !url.isEmpty {
-                                ContactInfoView(
-                                    title: "Website",
-                                    details: url
-                                )
-                            }
-                            
-                            if let address = carrier.address, !address.isEmpty {
-                                ContactInfoView(
-                                    title: "Address",
-                                    details: address
+                                    title: contact.title,
+                                    details: contact.value
                                 )
                             }
                         }
@@ -79,14 +55,14 @@ struct CarrierView: View {
                     }
                     .padding(16)
                 }
-            } else {
-                Text("Couldn't upload information")
+            } else if let error = viewModel.error {
+                Text(error.localizedDescription)
             }
         }
         .navigationTitle("Carrier info")
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            await viewModel.load(code: carrierCode)
+            await viewModel.load()
         }
     }
 }
