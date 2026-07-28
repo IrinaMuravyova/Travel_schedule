@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CitiesListView: View {
-    @State private var searchString = ""
+    // MARK: - Properties
     @State var settlement: Components.Schemas.Settlement?
     @StateObject private var viewModel: CitiesListViewModel
     
@@ -22,27 +22,24 @@ struct CitiesListView: View {
     private let mainTitle = NSLocalizedString("Choose city", comment: "")
     private let noResultsMessage = NSLocalizedString("No results found", comment: "")
     
-    var searchResults: [Components.Schemas.Settlement] {
-        if searchString.isEmpty {
-            return viewModel.cities
-        } else {
-            return viewModel.cities.filter { city in
-                city.title?.localizedCaseInsensitiveContains(searchString) ?? false
-            }
-        }
-    }
+    @Environment(\.requiredAllStationsLoader)
+    private var allStationsLoader
     
+    // MARK: - Init
     init(
         selectedCity: Binding<Components.Schemas.Settlement?>,
         selectedStation: Binding<Components.Schemas.Station?>,
         isActive: Binding<Bool>,
-        selectedTab: Binding<ContentView.Tab>
+        selectedTab: Binding<ContentView.Tab>,
+        allStationsLoader: AllStationsLoader
     ) {
         self._selectedCity = selectedCity
         self._selectedStation = selectedStation
         self._isActive = isActive
         self._selectedTab = selectedTab
-        self._viewModel = StateObject(wrappedValue: CitiesListViewModel())
+        self._viewModel = StateObject(
+            wrappedValue: CitiesListViewModel(allStationsLoader: allStationsLoader)
+        )
     }
     
     var body: some View {
@@ -57,9 +54,9 @@ struct CitiesListView: View {
                     }
             } else {
                 VStack {
-                    SearchBar(searchText: $searchString)
+                    SearchBar(searchText: $viewModel.searchText)
                     
-                    if searchResults.isEmpty && !searchString.isEmpty {
+                    if viewModel.filteredCities.isEmpty && !viewModel.searchText.isEmpty {
                         VStack(spacing: 16) {
                             Spacer()
                             
@@ -74,7 +71,7 @@ struct CitiesListView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 0) {
-                                ForEach(searchResults, id: \.codes?.yandex_code) { city in
+                                ForEach(viewModel.filteredCities, id: \.codes?.yandex_code) { city in
                                     NavigationLink {
                                         StationsListView(
                                             selectedStation: $selectedStation,

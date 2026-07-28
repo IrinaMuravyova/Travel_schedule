@@ -8,18 +8,12 @@
 import SwiftUI
 
 struct FiltersView: View {
-    @Binding var selectedTimeSlots: Set<TimeSlot>
-    @Binding var transferFilter: TransferFilter?
+    @ObservedObject var viewModel: FiltersViewModel
+    
+    let onApply: (Set<TimeSlot>, TransferFilter?) -> Void
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    
-    @State private var localSelectedTimeSlots: Set<TimeSlot> = []
-    @State private var localShowTransfers: TransferFilter?
-    
-    private var isAnyFilterSelected: Bool {
-        !localSelectedTimeSlots.isEmpty || localShowTransfers != nil
-    }
     
     var body: some View {
         NavigationView {
@@ -33,13 +27,9 @@ struct FiltersView: View {
                     ForEach(TimeSlot.allCases, id: \.self) { interval in
                         TimeSlotRow(
                             time: interval.title,
-                            isSelected: localSelectedTimeSlots.contains(interval),
+                            isSelected: viewModel.selectedTimeSlots.contains(interval),
                             action: {
-                                if localSelectedTimeSlots.contains(interval) {
-                                    localSelectedTimeSlots.remove(interval)
-                                } else {
-                                    localSelectedTimeSlots.insert(interval)
-                                }
+                                viewModel.toggleTimeSlot(interval)
                             }
                         )
                     }
@@ -55,9 +45,9 @@ struct FiltersView: View {
                     ForEach(TransferFilter.allCases, id: \.self) { option in
                         TransferRow(
                             title: option.title,
-                            isSelected: localShowTransfers == option,
+                            isSelected: viewModel.transferFilter == option,
                             action: {
-                                localShowTransfers = option
+                                viewModel.selectTransferFilter(option)
                             }
                         )
                     }
@@ -70,10 +60,12 @@ struct FiltersView: View {
                 HStack(alignment: .center) {
                     Spacer()
                     
-                    if isAnyFilterSelected {
+                    if viewModel.isAnyFilterSelected {
                         Button(action: {
-                            selectedTimeSlots = localSelectedTimeSlots
-                            transferFilter = localShowTransfers
+                            onApply(
+                                viewModel.selectedTimeSlots,
+                                viewModel.transferFilter
+                            )
                             dismiss()
                         }) {
                             Text(NSLocalizedString("Apply", comment: ""))
@@ -91,10 +83,6 @@ struct FiltersView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-        }
-        .onAppear {
-            localSelectedTimeSlots = selectedTimeSlots
-            localShowTransfers = transferFilter
         }
     }
 }

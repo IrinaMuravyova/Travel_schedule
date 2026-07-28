@@ -8,23 +8,20 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("isDarkModeOn") private var isDarkModeOn = false
     @Binding var selectedTab: ContentView.Tab
-    @State private var showAgreement = false
-    
-    let agreementURL = "https://yandex.ru/legal/practicum_offer"
+    @StateObject private var viewModel = SettingsViewModel()
     
     var body: some View {
         NavigationStack {
             VStack {
                 List {
-                    Toggle("Dark Mode", isOn: $isDarkModeOn)
+                    Toggle("Dark Mode", isOn: $viewModel.isDarkModeOn)
                         .frame(height: 60)
                         .tint(.blue)
                         .listRowSeparator(.hidden)
                     
                     Button {
-                        showAgreement = true
+                        viewModel.openAgreement()
                     } label: {
                         HStack {
                             Text("Users Agreement")
@@ -51,38 +48,14 @@ struct SettingsView: View {
                 .tracking(0.4)
                 .padding(EdgeInsets(top: 0, leading: 16, bottom: 24, trailing: 16))
             }
-            .navigationDestination(isPresented: $showAgreement) {
-                if let url = URL(string: agreementURL) {
-                    AgreementView(
-                        url: url,
-                        isDarkMode: isDarkModeOn
+            .navigationDestination(isPresented: $viewModel.showAgreement) {
+                AgreementView(
+                    viewModel: AgreementViewModel(
+                        url: viewModel.agreementURL,
+                        isDarkMode: viewModel.isDarkModeOn
                     )
-                }
+                )
             }
         }
-    }
-}
-
-struct AgreementView: View {
-    let url: URL
-    let isDarkMode: Bool
-    
-    @State private var isLoading = true
-    
-    var body: some View {
-        ZStack {
-            CopyrightWebView(
-                url: url,
-                isDarkMode: isDarkMode,
-                isLoading: $isLoading
-            )
-            
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(1.5)
-            }
-        }
-        .navigationTitle("Users Agreement")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

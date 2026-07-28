@@ -15,6 +15,9 @@ struct RoutesListView: View {
     
     @State private var selectedRoute: Components.Schemas.Segment?
     
+    @Environment(\.requiredCarrierInfoLoader)
+    private var carrierInfoLoader
+    
     var body: some View {
         ZStack (alignment: .bottom) {
             VStack (spacing: 16) {
@@ -67,8 +70,14 @@ struct RoutesListView: View {
             
             NavigationLink {
                 FiltersView(
-                    selectedTimeSlots: $viewModel.selectedTimeSlots,
-                    transferFilter: $viewModel.transferFilter
+                    viewModel: FiltersViewModel(
+                        selectedTimeSlots: viewModel.selectedTimeSlots,
+                        transferFilter: viewModel.transferFilter
+                    ),
+                    onApply: {
+                        viewModel.selectedTimeSlots = $0
+                        viewModel.transferFilter = $1
+                    }
                 )
             } label: {
                 Text("Narrow time")
@@ -90,13 +99,12 @@ struct RoutesListView: View {
             UITabBar.appearance().isHidden = false
         }
         .onChange(of: viewModel.displayedSegments.count) { oldValue, newValue in
-            if newValue < 3 && viewModel.hasMorePages {
-                viewModel.loadMore()
-            }
+            viewModel.checkNeedMoreLoading()
         }
         .navigationDestination(item: $selectedRoute) { route in
             CarrierView(
-                carrierCode: String(route.thread?.carrier?.code ?? 0)
+                carrierCode: String(route.thread?.carrier?.code ?? 0),
+                carrierInfoLoader: carrierInfoLoader
             )
         }
     }

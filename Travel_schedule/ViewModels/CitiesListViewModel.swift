@@ -10,6 +10,7 @@ import Combine
 
 @MainActor
 final class CitiesListViewModel: ObservableObject {
+    // MARK: - Properties
     @Published var cities: [Components.Schemas.Settlement] = []
     @Published var isLoading = false
     @Published var networkError: NetworkError?
@@ -25,6 +26,27 @@ final class CitiesListViewModel: ObservableObject {
         //      "overtaking_point"
     ]
     
+    @Published var searchText = ""
+    
+    private let allStationsLoader: AllStationsLoader
+    
+    // MARK: - Init
+    init(allStationsLoader: AllStationsLoader) {
+        self.allStationsLoader = allStationsLoader
+    }
+    
+    // MARK: - Computed properties
+    var filteredCities: [Components.Schemas.Settlement] {
+        if searchText.isEmpty {
+            return cities
+        }
+        
+        return cities.filter {
+            $0.title?.localizedCaseInsensitiveContains(searchText) ?? false
+        }
+    }
+    
+    // MARK: - Functions
     func load() async {
         isLoading = true
         networkError = nil
@@ -32,7 +54,7 @@ final class CitiesListViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            let response = try await AllStationsService.fetchAllStations()
+            let response = try await allStationsLoader.getAllStations()
             
             var allSettlements: [Components.Schemas.Settlement] = []
             

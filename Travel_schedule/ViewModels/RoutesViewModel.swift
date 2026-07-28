@@ -10,6 +10,7 @@ import Combine
 
 @MainActor
 final class RoutesViewModel: ObservableObject {
+    // MARK: - Properties
     @Published var from: String = ""
     @Published var to: String = ""
     
@@ -25,17 +26,8 @@ final class RoutesViewModel: ObservableObject {
     @Published var isSearching: Bool = false
     @Published var showCarriersList: Bool = false
     
-    @Published var selectedTimeSlots: Set<TimeSlot> = [] {
-        didSet {
-            objectWillChange.send()
-        }
-    }
-    
-    @Published var transferFilter: TransferFilter? {
-        didSet {
-            objectWillChange.send()
-        }
-    }
+    @Published var selectedTimeSlots: Set<TimeSlot> = []
+    @Published var transferFilter: TransferFilter?
     
     private let pageSize = 10
     private var offset = 0
@@ -77,6 +69,14 @@ final class RoutesViewModel: ObservableObject {
         hasMore
     }
     
+    private let routesBetweenStationsLoader: RoutesBetweenStationsLoader
+    
+    // MARK: - Init
+    init (routesBetweenStationsLoader: RoutesBetweenStationsLoader) {
+        self.routesBetweenStationsLoader = routesBetweenStationsLoader
+    }
+    
+    // MARK: - Functions
     func searchRoutes() {
         guard !fromCode.isEmpty, !toCode.isEmpty else { return }
         
@@ -100,6 +100,12 @@ final class RoutesViewModel: ObservableObject {
             await loadRoutes(reset: false)
         }
     }
+    
+    func checkNeedMoreLoading() {
+        if displayedSegments.count < 3 && hasMorePages {
+            loadMore()
+        }
+    }
 }
 
 // MARK: - Private functions
@@ -113,7 +119,7 @@ extension RoutesViewModel {
     
     private func loadRoutes(reset: Bool) async {
         do {
-            let result = try await RoutesBetweenStationsService.fetchRoutes(
+            let result = try await routesBetweenStationsLoader.getRoutesBetweenStations(
                 from: fromCode,
                 to: toCode,
                 date: getCurrentDate(),

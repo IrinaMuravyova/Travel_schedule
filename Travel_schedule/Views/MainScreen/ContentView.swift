@@ -12,6 +12,9 @@ struct ContentView: View {
     @State private var selectedTab = Tab.schedule
     @Environment(\.colorScheme) private var colorScheme
     
+    @Environment(\.requiredRoutesBetweenStationsLoader)
+    private var routesBetweenStationsLoader
+    
     enum Tab {
         case schedule
         case settings
@@ -19,11 +22,14 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab){
-            ChooseDirectionsView(selectedTab: $selectedTab)
-                .tabItem {
-                    Label("", image: .schedule)
-                }
-                .tag(Tab.schedule)
+            ChooseDirectionsView(
+                selectedTab: $selectedTab,
+                routesBetweenStationsLoader: routesBetweenStationsLoader
+            )
+            .tabItem {
+                Label("", image: .schedule)
+            }
+            .tag(Tab.schedule)
             
             Spacer()
             
@@ -34,20 +40,7 @@ struct ContentView: View {
                 .tag(Tab.settings)
         }
         .tint(isDarkModeOn ? .white : .blackDay)
-        .onAppear{
-            //            RoutesBetweenStationsService.testFetchRoutes()
-            //            StationRouteService.testFetchStationRoute()
-            //            RouteStationsService.testFetchRouteStations()
-            //            NearestStationsService.testFetchStations()
-            //            NearestCityService.testFetchCity()
-            //            CarrierInfoService.testFetchCarrierInfo()
-            //            AllStationsService.testFetchAllStations()
-            //            CopyrightService.testFetchCopyright()
-        }
         .preferredColorScheme(isDarkModeOn ? .dark : .light)
     }
 }
 
-#Preview {
-    ContentView()
-}
