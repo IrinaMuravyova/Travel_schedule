@@ -67,8 +67,14 @@ struct RoutesListView: View {
             
             NavigationLink {
                 FiltersView(
-                    selectedTimeSlots: $viewModel.selectedTimeSlots,
-                    transferFilter: $viewModel.transferFilter
+                    viewModel: FiltersViewModel(
+                        selectedTimeSlots: viewModel.selectedTimeSlots,
+                        transferFilter: viewModel.transferFilter
+                    ),
+                    onApply: {
+                        viewModel.selectedTimeSlots = $0
+                        viewModel.transferFilter = $1
+                    }
                 )
             } label: {
                 Text("Narrow time")
@@ -90,9 +96,7 @@ struct RoutesListView: View {
             UITabBar.appearance().isHidden = false
         }
         .onChange(of: viewModel.displayedSegments.count) { oldValue, newValue in
-            if newValue < 3 && viewModel.hasMorePages {
-                viewModel.loadMore()
-            }
+            viewModel.checkNeedMoreLoading()
         }
         .navigationDestination(item: $selectedRoute) { route in
             CarrierView(

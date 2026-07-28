@@ -25,17 +25,8 @@ final class RoutesViewModel: ObservableObject {
     @Published var isSearching: Bool = false
     @Published var showCarriersList: Bool = false
     
-    @Published var selectedTimeSlots: Set<TimeSlot> = [] {
-        didSet {
-            objectWillChange.send()
-        }
-    }
-    
-    @Published var transferFilter: TransferFilter? {
-        didSet {
-            objectWillChange.send()
-        }
-    }
+    @Published var selectedTimeSlots: Set<TimeSlot> = []
+    @Published var transferFilter: TransferFilter?
     
     private let pageSize = 10
     private var offset = 0
@@ -98,6 +89,12 @@ final class RoutesViewModel: ObservableObject {
         
         Task {
             await loadRoutes(reset: false)
+        }
+    }
+    
+    func checkNeedMoreLoading() {
+        if displayedSegments.count < 3 && hasMorePages {
+            loadMore()
         }
     }
 }
