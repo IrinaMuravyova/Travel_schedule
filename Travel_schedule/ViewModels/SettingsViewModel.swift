@@ -6,18 +6,17 @@
 //
 
 import Foundation
-import Observation
+import Combine
 
 @MainActor
-@Observable
-final class SettingsViewModel {
-    var isDarkModeOn: Bool {
+final class SettingsViewModel: ObservableObject {
+    @Published var isDarkModeOn: Bool {
         didSet {
             UserDefaults.standard.set(isDarkModeOn, forKey: "isDarkModeOn")
         }
     }
     
-    var showAgreement = false
+    @Published var showAgreement = false
     
     let agreementURL: URL
 

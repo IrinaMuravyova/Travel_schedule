@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct AgreementView: View {
-    @State private var viewModel: AgreementViewModel
+    @StateObject private var viewModel: AgreementViewModel
 
     init(viewModel: AgreementViewModel) {
-        _viewModel = State(initialValue: viewModel)
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {

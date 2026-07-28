@@ -12,7 +12,7 @@ struct ChooseDirectionsView: View {
     @State private var selectedStory: Story?
     @StateObject private var storyViewState = StoryViewState()
     
-    @State private var viewModel = ChooseDirectionsViewModel()
+    @StateObject private var viewModel = ChooseDirectionsViewModel()
 
     @State private var isFromActive = false
     @State private var isToActive = false

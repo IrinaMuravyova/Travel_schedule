@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Binding var selectedTab: ContentView.Tab
-    @State private var viewModel = SettingsViewModel()
+    @StateObject private var viewModel = SettingsViewModel()
     
     var body: some View {
         NavigationStack {

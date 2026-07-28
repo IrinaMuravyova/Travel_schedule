@@ -6,16 +6,16 @@
 //
 
 import Foundation
-import Observation
+import Combine
 
-@Observable
-final class ChooseDirectionsViewModel {
+@MainActor
+final class ChooseDirectionsViewModel: ObservableObject {
     // MARK: - Selected directions
-    var fromStation: Components.Schemas.Station?
-    var toStation: Components.Schemas.Station?
+    @Published var fromStation: Components.Schemas.Station?
+    @Published var toStation: Components.Schemas.Station?
 
-    var fromSettlement: Components.Schemas.Settlement?
-    var toSettlement: Components.Schemas.Settlement?
+    @Published var fromSettlement: Components.Schemas.Settlement?
+    @Published var toSettlement: Components.Schemas.Settlement?
     
     // MARK: - Routes
     let routesViewModel = RoutesViewModel()

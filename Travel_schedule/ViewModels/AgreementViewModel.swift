@@ -6,15 +6,14 @@
 //
 
 import Foundation
-import Observation
+import Combine
 
 @MainActor
-@Observable
-final class AgreementViewModel {
+final class AgreementViewModel: ObservableObject {
     let url: URL
     let isDarkMode: Bool
 
-    var isLoading = true
+    @Published var isLoading = true
 
     init(url: URL, isDarkMode: Bool) {
         self.url = url

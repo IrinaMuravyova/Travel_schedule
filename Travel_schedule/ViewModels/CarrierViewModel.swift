@@ -30,6 +30,7 @@ enum LocalizedString {
     )
 }
 
+@MainActor
 final class CarrierViewModel: ObservableObject {
     @Published var carrier: Components.Schemas.Carrier?
     @Published var isLoading = false
