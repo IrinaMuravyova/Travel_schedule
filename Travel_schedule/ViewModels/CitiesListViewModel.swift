@@ -25,6 +25,18 @@ final class CitiesListViewModel: ObservableObject {
         //      "overtaking_point"
     ]
     
+    @Published var searchText = ""
+    
+    var filteredCities: [Components.Schemas.Settlement] {
+        if searchText.isEmpty {
+            return cities
+        }
+
+        return cities.filter {
+            $0.title?.localizedCaseInsensitiveContains(searchText) ?? false
+        }
+    }
+    
     func load() async {
         isLoading = true
         networkError = nil
