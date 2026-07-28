@@ -15,6 +15,9 @@ struct RoutesListView: View {
     
     @State private var selectedRoute: Components.Schemas.Segment?
     
+    @Environment(\.requiredCarrierInfoLoader)
+    private var carrierInfoLoader
+    
     var body: some View {
         ZStack (alignment: .bottom) {
             VStack (spacing: 16) {
@@ -100,7 +103,8 @@ struct RoutesListView: View {
         }
         .navigationDestination(item: $selectedRoute) { route in
             CarrierView(
-                carrierCode: String(route.thread?.carrier?.code ?? 0)
+                carrierCode: String(route.thread?.carrier?.code ?? 0),
+                carrierInfoLoader: carrierInfoLoader
             )
         }
     }

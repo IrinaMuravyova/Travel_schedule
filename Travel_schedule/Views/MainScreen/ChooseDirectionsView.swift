@@ -12,11 +12,24 @@ struct ChooseDirectionsView: View {
     @State private var selectedStory: Story?
     @StateObject private var storyViewState = StoryViewState()
     
-    @StateObject private var viewModel = ChooseDirectionsViewModel()
-
+    @StateObject private var viewModel: ChooseDirectionsViewModel
+    
     @State private var isFromActive = false
     @State private var isToActive = false
     @State private var isRoutesActive = false
+    
+    @Environment(\.requiredAllStationsLoader)
+    private var allStationsLoader
+    
+    init(
+        selectedTab: Binding<ContentView.Tab>,
+        routesBetweenStationsLoader: RoutesBetweenStationsLoader
+    ) {
+        self._selectedTab = selectedTab
+        self._viewModel = StateObject(
+            wrappedValue: ChooseDirectionsViewModel(routesBetweenStationsLoader: routesBetweenStationsLoader)
+        )
+    }
     
     var body: some View {
         NavigationStack {
@@ -62,7 +75,6 @@ struct ChooseDirectionsView: View {
                         
                         Button(action: {
                             viewModel.swapDirections()
-//                            updateViewModelForSearch()
                         }) {
                             Image(.сhange)
                                 .renderingMode(.template)
@@ -103,7 +115,8 @@ struct ChooseDirectionsView: View {
                     selectedCity: $viewModel.fromSettlement,
                     selectedStation: $viewModel.fromStation,
                     isActive: $isFromActive,
-                    selectedTab: $selectedTab
+                    selectedTab: $selectedTab,
+                    allStationsLoader: allStationsLoader
                 )
             }
             .navigationDestination(isPresented: $isToActive) {
@@ -111,7 +124,8 @@ struct ChooseDirectionsView: View {
                     selectedCity: $viewModel.toSettlement,
                     selectedStation: $viewModel.toStation,
                     isActive: $isToActive,
-                    selectedTab: $selectedTab
+                    selectedTab: $selectedTab,
+                    allStationsLoader: allStationsLoader
                 )
             }
             .navigationDestination(isPresented: $isRoutesActive) {

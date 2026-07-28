@@ -5,7 +5,7 @@
 //  Created by Irina Muravyeva on 14.07.2026.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 
 enum LocalizedString {
@@ -82,20 +82,22 @@ final class CarrierViewModel: ObservableObject {
         return result
     }
     
-    init(carrierCode: String) {
+    private var carrierInfoLoader: CarrierInfoLoader
+    
+    init(
+        carrierCode: String,
+        carrierInfoLoader: CarrierInfoLoader
+    ) {
         self.carrierCode = carrierCode
+        self.carrierInfoLoader = carrierInfoLoader
     }
     
     func load() async {
         isLoading = true
         error = nil
         do {
-            let carrier = try await CarrierInfoService.fetchCarrierInfo(
-                carrierCode: carrierCode
-            )
-            
+            let carrier = try await carrierInfoLoader.getCarrierInfo(carrierCode: carrierCode)
             self.carrier = carrier
-            
         } catch {
             self.error = error
             print("Failed to load carrier info:", error)

@@ -11,10 +11,12 @@ struct CarrierView: View {
     @Environment(\.colorScheme) private var colorScheme
     @StateObject private var viewModel: CarrierViewModel
     
-    init(carrierCode: String) {
+    // MARK: - Init
+    init(carrierCode: String, carrierInfoLoader: CarrierInfoLoader) {
         _viewModel = StateObject(
             wrappedValue: CarrierViewModel(
-                carrierCode: carrierCode
+                carrierCode: carrierCode,
+                carrierInfoLoader: carrierInfoLoader
             )
         )
     }

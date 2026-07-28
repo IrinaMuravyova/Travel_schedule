@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CitiesListView: View {
+    // MARK: - Properties
     @State var settlement: Components.Schemas.Settlement?
     @StateObject private var viewModel: CitiesListViewModel
     
@@ -21,17 +22,24 @@ struct CitiesListView: View {
     private let mainTitle = NSLocalizedString("Choose city", comment: "")
     private let noResultsMessage = NSLocalizedString("No results found", comment: "")
     
+    @Environment(\.requiredAllStationsLoader)
+    private var allStationsLoader
+    
+    // MARK: - Init
     init(
         selectedCity: Binding<Components.Schemas.Settlement?>,
         selectedStation: Binding<Components.Schemas.Station?>,
         isActive: Binding<Bool>,
-        selectedTab: Binding<ContentView.Tab>
+        selectedTab: Binding<ContentView.Tab>,
+        allStationsLoader: AllStationsLoader
     ) {
         self._selectedCity = selectedCity
         self._selectedStation = selectedStation
         self._isActive = isActive
         self._selectedTab = selectedTab
-        self._viewModel = StateObject(wrappedValue: CitiesListViewModel())
+        self._viewModel = StateObject(
+            wrappedValue: CitiesListViewModel(allStationsLoader: allStationsLoader)
+        )
     }
     
     var body: some View {

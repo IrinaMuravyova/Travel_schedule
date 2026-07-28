@@ -10,6 +10,7 @@ import Combine
 
 @MainActor
 final class RoutesViewModel: ObservableObject {
+    // MARK: - Properties
     @Published var from: String = ""
     @Published var to: String = ""
     
@@ -68,6 +69,14 @@ final class RoutesViewModel: ObservableObject {
         hasMore
     }
     
+    private let routesBetweenStationsLoader: RoutesBetweenStationsLoader
+    
+    // MARK: - Init
+    init (routesBetweenStationsLoader: RoutesBetweenStationsLoader) {
+        self.routesBetweenStationsLoader = routesBetweenStationsLoader
+    }
+    
+    // MARK: - Functions
     func searchRoutes() {
         guard !fromCode.isEmpty, !toCode.isEmpty else { return }
         
@@ -110,7 +119,7 @@ extension RoutesViewModel {
     
     private func loadRoutes(reset: Bool) async {
         do {
-            let result = try await RoutesBetweenStationsService.fetchRoutes(
+            let result = try await routesBetweenStationsLoader.getRoutesBetweenStations(
                 from: fromCode,
                 to: toCode,
                 date: getCurrentDate(),
