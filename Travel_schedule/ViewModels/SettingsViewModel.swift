@@ -8,6 +8,7 @@
 import Foundation
 import Observation
 
+@MainActor
 @Observable
 final class SettingsViewModel {
     var isDarkModeOn: Bool {
@@ -17,9 +18,19 @@ final class SettingsViewModel {
     }
     
     var showAgreement = false
+    
+    let agreementURL: URL
 
     init() {
         self.isDarkModeOn = UserDefaults.standard.bool(forKey: "isDarkModeOn")
+        
+        guard let url = URL(
+            string: "https://yandex.ru/legal/practicum_offer"
+        ) else {
+            fatalError("Invalid agreement URL")
+        }
+        
+        self.agreementURL = url
     }
 
     func openAgreement() {

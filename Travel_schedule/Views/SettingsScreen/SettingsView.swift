@@ -11,8 +11,6 @@ struct SettingsView: View {
     @Binding var selectedTab: ContentView.Tab
     @State private var viewModel = SettingsViewModel()
     
-    let agreementURL = "https://yandex.ru/legal/practicum_offer"
-    
     var body: some View {
         NavigationStack {
             VStack {
@@ -51,37 +49,13 @@ struct SettingsView: View {
                 .padding(EdgeInsets(top: 0, leading: 16, bottom: 24, trailing: 16))
             }
             .navigationDestination(isPresented: $viewModel.showAgreement) {
-                if let url = URL(string: agreementURL) {
-                    AgreementView(
-                        url: url,
+                AgreementView(
+                    viewModel: AgreementViewModel(
+                        url: viewModel.agreementURL,
                         isDarkMode: viewModel.isDarkModeOn
                     )
-                }
+                )
             }
         }
-    }
-}
-
-struct AgreementView: View {
-    let url: URL
-    let isDarkMode: Bool
-    
-    @State private var isLoading = true
-    
-    var body: some View {
-        ZStack {
-            CopyrightWebView(
-                url: url,
-                isDarkMode: isDarkMode,
-                isLoading: $isLoading
-            )
-            
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(1.5)
-            }
-        }
-        .navigationTitle("Users Agreement")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
